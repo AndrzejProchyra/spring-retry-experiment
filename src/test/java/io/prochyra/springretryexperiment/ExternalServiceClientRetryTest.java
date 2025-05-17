@@ -2,6 +2,9 @@ package io.prochyra.springretryexperiment;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static org.assertj.core.api.BDDAssertions.catchThrowable;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,17 @@ public class ExternalServiceClientRetryTest {
     externalServiceClient.get();
 
     verify(exactly(3), getRequestedFor(urlEqualTo("/")));
+  }
+
+  @Test
+  void should_throw_ExternalServiceClientException_when_retries_run_out() {
+    stubFor(get(urlEqualTo("/")).willReturn(aResponse().withStatus(500)));
+
+    var throwable = catchThrowable(() -> externalServiceClient.get());
+
+    assertAll(
+        () -> verify(exactly(3), getRequestedFor(urlEqualTo("/"))),
+        () -> then(throwable).isInstanceOf(ExternalServiceClientException.class));
   }
 
   @TestConfiguration

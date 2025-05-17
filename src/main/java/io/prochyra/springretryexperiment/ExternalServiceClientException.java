@@ -1,4 +1,3 @@
 package io.prochyra.springretryexperiment;
 
-public class ExternalServiceClientException extends RuntimeException {
-}
+public class ExternalServiceClientException extends RuntimeException {}

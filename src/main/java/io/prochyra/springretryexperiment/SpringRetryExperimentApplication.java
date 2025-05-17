@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SpringRetryExperimentApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringRetryExperimentApplication.class, args);
-    }
-
+  public static void main(String[] args) {
+    SpringApplication.run(SpringRetryExperimentApplication.class, args);
+  }
 }

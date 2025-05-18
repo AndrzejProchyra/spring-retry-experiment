@@ -21,7 +21,7 @@ import org.wiremock.spring.EnableWireMock;
     classes = {
       ExternalServiceClientRetryTest.RetryTestConfiguration.class,
       ExternalServiceClient.class
-    })
+    }, properties = "external-service-client.backoff.delay=0")
 @EnableWireMock(@ConfigureWireMock(baseUrlProperties = "external-service-client.base-url"))
 public class ExternalServiceClientRetryTest {
 

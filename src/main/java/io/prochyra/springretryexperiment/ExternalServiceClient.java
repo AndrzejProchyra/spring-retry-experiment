@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -19,7 +20,15 @@ public class ExternalServiceClient {
     this.restClient = restClientBuilder.baseUrl(baseUrl).build();
   }
 
-  @Retryable
+  @Retryable(
+      maxAttemptsExpression =
+          "#{@'external-service-client-io.prochyra.springretryexperiment.ExternalServiceClientProperties'.maxAttempts}",
+      backoff =
+          @Backoff(
+              delayExpression =
+                  "#{@'external-service-client-io.prochyra.springretryexperiment.ExternalServiceClientProperties'.backoff.delay}",
+              multiplierExpression =
+                  "#{@'external-service-client-io.prochyra.springretryexperiment.ExternalServiceClientProperties'.backoff.multiplier}"))
   public void get() {
     restClient
         .get()
@@ -30,6 +39,6 @@ public class ExternalServiceClient {
   }
 
   private static void handle5xx(HttpRequest request, ClientHttpResponse response) {
-    throw new ExternalServiceClientException();
+    throw new ExternalServiceClientException("Got a 5xx response");
   }
 }

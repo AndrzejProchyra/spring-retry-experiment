@@ -8,13 +8,20 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.web.client.RestClient;
 import org.wiremock.spring.ConfigureWireMock;
 import org.wiremock.spring.EnableWireMock;
 
-@SpringBootTest
+@SpringBootTest(
+    classes = {
+      ExternalServiceClientRetryTest.RetryTestConfiguration.class,
+      ExternalServiceClient.class
+    })
 @EnableWireMock(@ConfigureWireMock(baseUrlProperties = "external-service-client.base-url"))
 public class ExternalServiceClientRetryTest {
 
@@ -58,7 +65,13 @@ public class ExternalServiceClientRetryTest {
         () -> then(throwable).isInstanceOf(ExternalServiceClientException.class));
   }
 
-  @TestConfiguration
+  @Configuration
   @EnableRetry
-  public static class RetryTestConfiguration {}
+  @ConfigurationPropertiesScan
+  public static class RetryTestConfiguration {
+    @Bean
+    public RestClient.Builder restClientBuilder() {
+      return RestClient.builder();
+    }
+  }
 }

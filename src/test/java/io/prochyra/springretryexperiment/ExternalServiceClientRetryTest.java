@@ -21,14 +21,15 @@ import org.wiremock.spring.EnableWireMock;
     classes = {
       ExternalServiceClientRetryTest.RetryTestConfiguration.class,
       ExternalServiceClient.class
-    }, properties = "external-service-client.backoff.delay=0")
+    },
+    properties = "external-service-client.backoff.delay=0")
 @EnableWireMock(@ConfigureWireMock(baseUrlProperties = "external-service-client.base-url"))
 public class ExternalServiceClientRetryTest {
 
   @Autowired private ExternalServiceClient externalServiceClient;
 
   @Test
-  void should_retry_twice() {
+  void should_retry_before_succeeding_with_default_3_retries() {
     stubFor(
         get(urlEqualTo("/"))
             .inScenario("retry-scenario")
@@ -55,7 +56,7 @@ public class ExternalServiceClientRetryTest {
   }
 
   @Test
-  void should_throw_ExternalServiceClientException_when_retries_run_out() {
+  void should_throw_ExternalServiceClientException_when_default_3_retries_run_out() {
     stubFor(get(urlEqualTo("/")).willReturn(aResponse().withStatus(500)));
 
     var throwable = catchThrowable(() -> externalServiceClient.get());
